@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Leader Slot</title>
+<meta name="description" content="You are the Solana leader. Verify the real transactions, never the fakes. It gets faster. Beat the leaderboard.">
+<meta property="og:title" content="Leader Slot">
+<meta property="og:description" content="You are the Solana leader. One core can't keep up. 32 lanes can.">
+<meta property="og:image" content="https://proofofparallel.com/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c1117;--paper:#e4d9b7;--ink:#0c1117;--mute:#a99c8b;--gold:#d4c596;--g:#14f195;--p:#9945ff;--r:#e05252}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--paper);font:20px/1.25 "VT323",ui-monospace,monospace;overflow:hidden;touch-action:manipulation}
+#wrap{position:fixed;inset:0;display:flex;flex-direction:column}
+#hud{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;gap:10px;flex-wrap:wrap;border-bottom:2px solid #1d2630}
+#hud .t{font-family:"Russo One",sans-serif;color:var(--gold);letter-spacing:.08em;font-size:16px}
+#hud span{color:var(--mute)}#hud b{color:var(--paper);font-weight:400}
+canvas#c{flex:1;width:100%;display:block;image-rendering:pixelated;cursor:crosshair}
+.ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(12,17,23,.86);z-index:5;overflow:auto}
+.card{max-width:560px;width:100%;background:var(--paper);color:var(--ink);padding:22px 22px 18px;border:4px solid #000;box-shadow:8px 8px 0 #000;position:relative}
+.card h1{font-family:"Russo One",sans-serif;margin:0 0 6px;font-size:clamp(30px,8vw,46px);letter-spacing:.02em;line-height:1}
+.card .tag{display:inline-block;background:var(--ink);color:var(--paper);padding:2px 8px;font-size:16px;margin-bottom:10px}
+.card p{margin:8px 0;font-size:21px}
+.btn{font:24px "VT323",monospace;background:var(--ink);color:var(--paper);border:3px solid #000;padding:10px 18px;cursor:pointer;box-shadow:4px 4px 0 #000;margin:6px 8px 0 0}
+.btn.g{background:#0f3d2a;color:var(--g)}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.stamp{position:absolute;right:16px;top:14px;border:4px solid var(--r);color:var(--r);padding:2px 10px;font-family:"Russo One";transform:rotate(-10deg);font-size:18px;opacity:.85}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;font-size:19px;margin:8px 0}
+.legend canvas{background:#d6c9a4;border:2px solid #000}
+a{color:inherit}
+.small{font-size:17px;opacity:.8}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud"><div class="t">◎ LEADER SLOT</div><div><span>SCORE</span> <b id="hE">0</b> &nbsp;<span>COMBO</span> <b id="hC" style="color:var(--gold)">x1</b> &nbsp;<span>LANES</span> <b id="hL">1</b> &nbsp;<span>VERIFIED</span> <b id="hV">0</b> &nbsp;<span>STRIKES</span> <b id="hS" style="color:var(--r)">···</b></div></div>
+  <canvas id="c"></canvas>
+</div>
+<div class="ov" id="ov"></div>
+<script>
+const C=document.getElementById("c"),X=C.getContext("2d"),OV=document.getElementById("ov");
+const API="https://mdggkjocllyqxpthvtop.supabase.co/functions/v1/pop-live";
+let W=0,H=0,DPR=1;function fit(){DPR=Math.min(2,window.devicePixelRatio||1);W=C.clientWidth;H=C.clientHeight;C.width=W*DPR;C.height=H*DPR;X.setTransform(DPR,0,0,DPR,0,0);X.imageSmoothingEnabled=false}
+addEventListener("resize",fit);fit();
+const PAL={bg:"#0c1117",lane:"#141c25",lane2:"#18212c",paper:"#e4d9b7",ink:"#0c1117",mute:"#a99c8b",gold:"#d4c596",g:"#14f195",p:"#9945ff",r:"#e05252",y:"#ffd166"};
+let AC=null;function beep(f,d=.06,t="square",v=.04){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+function sprC(c,map,x,y,s,cols){for(let j=0;j<map.length;j++)for(let i=0;i<map[j].length;i++){const k=map[j][i];if(k!=="."){c.fillStyle=cols[k];c.fillRect(Math.round(x+i*s),Math.round(y+j*s),Math.ceil(s),Math.ceil(s))}}}
+const spr=(m,x,y,s,cols)=>sprC(X,m,x,y,s,cols);
+const ENV=["kkkkkkkkkkkk","kppppppppppk","kpkppppppkpk","kppkppppkppk","kpppkppkpppk","kppppkkppppk","kppppppppppk","kkkkkkkkkkkk"];
+// real seal and three kinds of fakes; "subtle" fakes look almost real
+const SEAL_OK=["..gg..",".gggg.","gggkgg","ggkggg",".gkgg.","..gg.."];
+const SEAL_BAD=["..rr..",".r..r.","r.rr.r","r.rr.r",".r..r.","..rr.."];
+const SEAL_SUB=["..gg..",".gggg.","gggkgg","ggkrgg",".gkgg.","..gg.."]; // forged: one red pixel
+const CLOCK=["..kk..",".k..k.","k..k.k","k.kk.k",".k..k.","..kk.."];
+const CLOCK_SUB=["..gg..",".gggg.","gggkgg","ggkggg",".gkgg.","..gk.."]; // expired: tiny clock hand
+const GHOST=[".pppp.","pppppp","pkppkp","pppppp","pppppp","p.pp.p"];
+const GOLD=["..yy..",".yyyy.","yyykyy","yykyyy",".ykyy.","..yy.."];
+const VAL=["...gggg...","..gggggg..",".gg.gg.gg.",".gggggggg.","..gg..gg..","..gggggg..",".gggggggg.","gg.gggg.gg","g..gggg..g","...g..g..."];
+const BLOCK=["kkkkkkkkkk","kggggggggk","kgkkkkkkgk","kgkggggkgk","kgkggggkgk","kgkkkkkkgk","kggggggggk","kkkkkkkkkk"];
+const MEMOS=["gm","chewing glass","IBRL","wen alpenglow","it's so over","we're so back","1M TPS","toly pls reply","sent from my Seeker","not a bot","jito tip","dev selling","priority fee: vibes","bridged from ETH","firedancer says hi","this tx is a jpeg","nothing stops this train","solana is down (it isn't)"];
+const KINDS={
+ ok:{seal:SEAL_OK,cols:{g:PAL.g,k:PAL.ink},bad:false},
+ gold:{seal:GOLD,cols:{y:PAL.y,k:PAL.ink},bad:false,gold:true},
+ forged:{seal:SEAL_BAD,cols:{r:PAL.r},bad:true,why:"forged signature"},
+ expired:{seal:CLOCK,cols:{k:"#7a6a4a"},bad:true,why:"expired blockhash"},
+ replay:{seal:GHOST,cols:{p:PAL.p,k:PAL.ink},bad:true,why:"replayed signature"},
+ sforged:{seal:SEAL_SUB,cols:{g:PAL.g,k:PAL.ink,r:PAL.r},bad:true,why:"forged (look closer)"},
+ sexpired:{seal:CLOCK_SUB,cols:{g:"#4fbf8f",k:PAL.ink},bad:true,why:"expired (faded seal)"}
+};
+// difficulty ramps every 20 seconds: more lanes, faster, more subtle fakes
+const STAGES=[
+ {t:0,lanes:1,speed:100,every:.6,kinds:["ok","ok","ok","forged"]},
+ {t:20,lanes:2,speed:105,every:.7,kinds:["ok","ok","ok","forged","expired","gold"]},
+ {t:40,lanes:3,speed:120,every:.55,kinds:["ok","ok","ok","forged","expired","replay","gold"]},
+ {t:60,lanes:4,speed:135,every:.42,kinds:["ok","ok","ok","ok","forged","expired","replay","sforged","gold"]},
+ {t:85,lanes:6,speed:150,every:.3,kinds:["ok","ok","ok","ok","forged","replay","sforged","sexpired","gold"]},
+ {t:110,lanes:8,speed:170,every:.22,kinds:["ok","ok","ok","ok","forged","sforged","sexpired","replay","gold"]}
+];
+let S=null,last=0,raf=0;
+const DIFFS={devnet:{name:"Devnet",note:"easy · slow · no tricky fakes",sp:.75,ev:1.35,t0:0,mul:.5,noSub:true},testnet:{name:"Testnet",note:"normal",sp:1,ev:1,t0:0,mul:1},mainnet:{name:"Mainnet",note:"hard · starts at 3 lanes",sp:1.2,ev:.8,t0:40,mul:1.6},alpenglow:{name:"Alpenglow",note:"insane · 100 ms finality vibes",sp:1.5,ev:.6,t0:60,mul:2.5}};
+let DIFF=DIFFS.testnet;try{DIFF=DIFFS[localStorage.getItem("ls_diff")]||DIFF}catch(e){}
+const stage=()=>{let s=STAGES[0];const tt=S.t+DIFF.t0;for(const x of STAGES)if(tt>=x.t)s=x;return DIFF.noSub?{...s,kinds:s.kinds.filter(k=>k[0]!=="s")}:s};
+function hud(){const st=S?stage():STAGES[0];hE.textContent=S?Math.floor(S.score).toLocaleString("en-US"):0;hL.textContent=S?st.lanes:1;hV.textContent=S?S.ver:0;hS.textContent=S?"✕".repeat(S.miss)+"·".repeat(Math.max(0,3-S.miss)):"···";hC.textContent=S?"x"+mult():"x1"}
+const mult=()=>Math.min(8,1+Math.floor((S?S.combo:0)/5));
+function show(html){OV.innerHTML=`<div class="card">${html}</div>`;OV.style.display="flex"}
+function hide(){OV.style.display="none"}
+function legend(){return `<div class="legend"><canvas width="24" height="24" id="l1"></canvas><span><b>real</b>: green seal. TAP to verify it</span><canvas width="24" height="24" id="l5"></canvas><span><b>priority fee</b>: gold. tap it, big bonus</span><canvas width="24" height="24" id="l2"></canvas><span><b>forged</b>: red cracked seal. do NOT tap</span><canvas width="24" height="24" id="l3"></canvas><span><b>expired</b>: clock. do NOT tap</span><canvas width="24" height="24" id="l4"></canvas><span><b>replay</b>: ghost. do NOT tap</span><canvas width="24" height="24" id="l6"></canvas><span>later: fakes that <b>almost</b> look real. look closer</span></div>`}
+function paintLegend(){[["l1","ok"],["l2","forged"],["l3","expired"],["l4","replay"],["l5","gold"],["l6","sforged"]].forEach(([id,k])=>{const e=document.getElementById(id);if(e)sprC(e.getContext("2d"),KINDS[k].seal,0,0,4,KINDS[k].cols)})}
+function home(){cancelAnimationFrame(raf);S=null;hud();drawIdle();show(`<div class="tag">MAINNET-BETA · LEADER SCHEDULE</div><h1>LEADER SLOT</h1>
+<p>You are the Solana leader. <b>Tap the real transactions</b> (green seal) to verify them. <b>Never tap a fake.</b> It keeps getting faster.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0">${Object.entries(DIFFS).map(([k,d])=>`<button class="btn" style="margin:0;${DIFF===d?"background:#0f3d2a;color:#14f195":""}" onclick="pick('${k}')">${d.name}<br><span style="font-size:16px;opacity:.8">${d.note}</span></button>`).join("")}</div>
+<button class="btn" onclick="start()">TAKE THE SLOT ▸</button> <button class="btn" onclick="board()">LEADERBOARD</button>
+<details style="margin-top:10px"><summary style="cursor:pointer;font-size:21px">How to play</summary>${legend()}
+<p class="small">Faster taps score more. Correct taps in a row build a combo up to x8. Tapping a fake = strike. 3 strikes and your slot is skipped. Every 20 seconds you get more lanes and more speed. Desktop: keys 1 to 8 verify the front transaction in that lane.</p>
+</details>`);paintLegend()}
+function pick(k){DIFF=DIFFS[k];try{localStorage.setItem("ls_diff",k)}catch(e){}home()}
+function start(){S={t:0,score:0,ver:0,miss:0,combo:0,best:0,lost:0,pk:[],fx:[],shake:0,timer:0,lastLanes:1};hide();hud();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function geo(n){const top=10,bot=H-10,h=(bot-top)/n;return{top,h,x1:Math.max(100,Math.min(160,W*.22))}}
+function spawn(st){let lane=Math.floor(Math.random()*st.lanes);if(S.pk.some(q=>!q.dead&&q.lane===lane&&q.x>W-(st.lanes<=2?150:80))){S.timer=.1;return}
+  const k=st.kinds[Math.floor(Math.random()*st.kinds.length)];S.pk.push({lane,x:W+20,k,memo:MEMOS[Math.floor(Math.random()*MEMOS.length)],v:DIFF.sp*st.speed*(.85+Math.random()*.3)*(W/700+.45)*(1+S.t/400),dead:false})}
+function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;S.t+=dt;const st=stage();
+  if(st.lanes!==S.lastLanes){S.lastLanes=st.lanes;S.banner={txt:st.lanes+" LANES · FASTER",t:1.6};beep(440,.2,"triangle",.05)}
+  S.timer-=dt;if(S.timer<=0){S.timer=DIFF.ev*st.every*(.7+Math.random()*.6);spawn(st)}
+  const g=geo(st.lanes);
+  for(const p of S.pk){if(p.dead)continue;p.x-=p.v*dt;if(p.x<=g.x1){p.dead=true;
+      if(!KINDS[p.k].bad){S.combo=0;S.lost++;S.fx.push({x:g.x1+10,y:g.top+g.h*(p.lane+.5),txt:"missed: real tx not verified",c:PAL.mute,t:1});beep(200,.06)}
+      hud()}}
+  draw(g,st.lanes);
+  if(S.miss>=3)return end();
+  raf=requestAnimationFrame(loop)}
+function draw(g,n){X.save();if(S&&S.shake>0){S.shake-=.016;X.translate((Math.random()-.5)*8,(Math.random()-.5)*8)}
+  X.fillStyle=PAL.bg;X.fillRect(-10,-10,W+20,H+20);
+  for(let i=0;i<n;i++){X.fillStyle=i%2?PAL.lane:PAL.lane2;X.fillRect(g.x1,g.top+g.h*i+1,W-g.x1,g.h-2);
+    if(g.h>14){X.fillStyle="#223040";for(let x=g.x1+40;x<W;x+=46)X.fillRect(x,g.top+g.h*(i+.5),14,2)}
+    if(n>1&&W>600){X.fillStyle="#2b3a4a";X.font="16px VT323";X.textAlign="left";X.fillText(String(i+1),g.x1+6,g.top+g.h*(i+.5)+5)}}
+  const bs=Math.max(3,Math.min(8,g.x1/14));X.fillStyle="#0a2a1c";X.fillRect(0,g.top,g.x1,H-20);
+  spr(BLOCK,g.x1/2-5*bs,H/2-10*bs,bs,{k:"#000",g:PAL.g});
+  X.fillStyle=PAL.gold;X.font=`${Math.min(22,Math.max(14,g.x1/7))}px VT323`;X.textAlign="center";X.fillText("YOUR BLOCK",g.x1/2,H/2-10*bs-10);
+  spr(VAL,g.x1/2-4*bs,H/2+bs,bs*.8,{g:PAL.g});
+  if(S){X.fillStyle=PAL.y;X.font="28px VT323";X.fillText("x"+mult(),g.x1/2,H/2+bs*12+10)}
+  const s=Math.max(2,Math.min(5,g.h/11));
+  if(S)for(const p of S.pk){if(p.dead)continue;const y=g.top+g.h*(p.lane+.5)-4*s;spr(ENV,p.x,y,s,{k:"#000",p:PAL.paper});const kd=KINDS[p.k];spr(kd.seal,p.x+3*s,y+1*s,s,kd.cols);
+    if(n<=2){X.fillStyle=PAL.mute;X.font=`${Math.max(15,s*4)}px VT323`;X.textAlign="left";X.fillText(p.memo,p.x+13*s,y+6*s)}}
+  if(S){for(const f of S.fx){f.t-=.016;f.y-=.4;X.globalAlpha=Math.max(0,Math.min(1,f.t));X.fillStyle=f.c;X.font="20px VT323";X.textAlign="left";X.fillText(f.txt,f.x,f.y)}X.globalAlpha=1;S.fx=S.fx.filter(f=>f.t>0);
+    if(S.banner&&S.banner.t>0){S.banner.t-=.016;X.globalAlpha=Math.min(1,S.banner.t);X.fillStyle=PAL.gold;X.font=`${Math.min(48,W/10)}px "Russo One"`;X.textAlign="center";X.fillText(S.banner.txt,(g.x1+W)/2,H/2);X.globalAlpha=1}}
+  X.restore()}
+function verify(p,g){p.dead=true;const kd=KINDS[p.k],y=g.top+g.h*(p.lane+.5);
+  if(kd.bad){S.miss++;S.combo=0;S.shake=.35;beep(130,.3,"sawtooth",.06);S.fx.push({x:Math.max(g.x1+10,p.x-40),y,txt:"STRIKE: "+kd.why,c:PAL.r,t:1.5})}
+  else{S.combo++;S.best=Math.max(S.best,S.combo);S.ver++;const speedBonus=1+Math.max(0,(p.x-g.x1)/(W-g.x1));const pts=Math.round((kd.gold?50:10)*speedBonus*mult()*DIFF.mul);S.score+=pts;
+    beep(kd.gold?1560:660+Math.min(8,mult())*90,.05);S.fx.push({x:p.x,y,txt:"+"+pts+(kd.gold?" priority fee!":""),c:kd.gold?PAL.y:PAL.g,t:.8})}
+  hud()}
+function hit(cx,cy){if(!S||OV.style.display==="flex")return;const st=stage(),g=geo(st.lanes),s=Math.max(2,Math.min(5,g.h/11));
+  let best=null,bd=1e9;for(const p of S.pk){if(p.dead)continue;const py=g.top+g.h*(p.lane+.5),px=p.x+6*s,d=Math.hypot(cx-px,(cy-py)*1.3);if(d<bd){bd=d;best=p}}
+  if(!best||bd>Math.max(40,Math.min(70,g.h*.6)))return;verify(best,g)}
+C.addEventListener("pointerdown",e=>{const r=C.getBoundingClientRect();hit(e.clientX-r.left,e.clientY-r.top)});
+addEventListener("keydown",e=>{if(!S||OV.style.display==="flex")return;const n=parseInt(e.key,10);const st=stage();if(!(n>=1&&n<=st.lanes))return;const g=geo(st.lanes);
+  const front=S.pk.filter(p=>!p.dead&&p.lane===n-1&&p.x<W).sort((a,b)=>a.x-b.x)[0];if(front)verify(front,g)});
+function end(){cancelAnimationFrame(raf);const secs=S.t,rate=Math.max(.01,S.ver/Math.max(1,secs)),frac=Math.round(6759163/rate),score=Math.floor(S.score);
+  const rank=score>6000?"Toly-approved leader":score>3000?"Superminority":score>1200?"RPC node with feelings":"Delinquent validator";
+  const text=`I scored ${score.toLocaleString("en-US")} on ${DIFF.name} in Leader Slot: verified ${S.ver} Solana transactions by hand in ${Math.round(secs)}s (best combo ${S.best}). One $0.40/hr GPU verifies 6,759,163 per second. I am 1/${frac.toLocaleString("en-US")} of a GPU.`;
+  show(`<div class="stamp">SLOT SKIPPED</div><div class="tag">RESULT · ${DIFF.name.toUpperCase()}</div><h1 style="font-size:40px">${score.toLocaleString("en-US")}</h1>
+<p>You verified <b>${S.ver}</b> transactions in ${Math.round(secs)} seconds (${rate.toFixed(1)} per second). Best combo <b>${S.best}</b>. Real ones you missed: ${S.lost}.</p>
+<p>One rented RTX 4090 verifies <b>6,759,163</b> signatures per second. You are <b>1/${frac.toLocaleString("en-US")}</b> of a GPU.</p>
+<p>Rank: <b>${rank}</b></p>
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><input id="nm" maxlength="15" placeholder="your name or @x" style="font:22px VT323;padding:8px;border:3px solid #000;width:200px;background:#fff8e1"><button class="btn" id="sv" onclick="save(${score},${S.ver},${S.best},${Math.round(secs)})">SAVE SCORE</button></div>
+<button class="btn" onclick="start()">PLAY AGAIN</button><a class="btn g" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://x.com/intent/tweet?text=${encodeURIComponent(text+" proofofparallel.com/play via @Daglabster")}">SHARE ON X</a>
+<p class="small"><a href="/">See a real GPU verify all of Solana live →</a></p>`);try{nm.value=localStorage.getItem("ls_name")||""}catch(e){}}
+async function save(score,ver,combo,secs){const name=(nm.value||"anon").trim().slice(0,15);try{localStorage.setItem("ls_name",name)}catch(e){}sv.disabled=true;sv.textContent="SAVING…";
+  try{await fetch(API+"?a=score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name,score,ver,combo,secs,diff:DIFF.name})});board(name)}catch(e){sv.textContent="TRY AGAIN";sv.disabled=false}}
+async function board(me){show(`<div class="tag">LEADERBOARD</div><h1 style="font-size:32px">Top leaders · ${DIFF.name}</h1><div id="lb">loading…</div><button class="btn" onclick="start()">PLAY ▸</button> <button class="btn" onclick="home()">HOME</button>`);
+  try{const j=await fetch(API+"?a=scores&diff="+encodeURIComponent(DIFF.name)).then(r=>r.json());lb.innerHTML=`<table style="width:100%;font-size:21px;border-collapse:collapse">${(j.scores||[]).map((r,i)=>`<tr style="${r.name===me?"background:#d4c596":""}"><td>${i+1}.</td><td>${String(r.name).replace(/[<>&"]/g,"")}</td><td style="text-align:right">${Number(r.score).toLocaleString("en-US")}</td></tr>`).join("")||"<tr><td>No scores yet. Be first.</td></tr>"}</table>`}catch(e){lb.textContent="Could not load."}}
+function drawIdle(){const g=geo(4);X.fillStyle=PAL.bg;X.fillRect(0,0,W,H);for(let i=0;i<4;i++){X.fillStyle=i%2?PAL.lane:PAL.lane2;X.fillRect(g.x1,g.top+g.h*i+1,W-g.x1,g.h-2)}}
+home();
+</script>
+</body>
+</html>

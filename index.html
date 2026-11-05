@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proof of Parallel</title>
+<meta name="description" content="All of Solana mainnet, signature-verified live on one rented gaming GPU.">
+<meta property="og:title" content="Proof of Parallel">
+<meta property="og:description" content="All of Solana mainnet, signature-verified live on one rented gaming GPU.">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="https://proofofparallel.com/og.jpg">
+<meta name="twitter:image" content="https://proofofparallel.com/og.jpg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c1117;--fg:#e4d9b7;--m:#a99c8b;--line:#1d2630;--card:#111820;--g:#14f195;--p:#9945ff;--gold:#d4c596}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font:21px/1.35 "VT323",ui-monospace,monospace}
+main{max-width:820px;margin:0 auto;padding:48px 16px 80px}
+.k{font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--g)}
+h1{font-family:"Russo One",sans-serif;font-size:clamp(36px,7vw,60px);line-height:1.02;margin:14px 0 14px;letter-spacing:.01em}
+h1 span{background:linear-gradient(90deg,var(--p),var(--g));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:23px;color:#e4d9b7;max-width:640px}
+h2{font-family:"Russo One",sans-serif;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:52px 0 12px}
+.card{background:var(--card);border:3px solid #000;box-shadow:6px 6px 0 #000;padding:20px}
+.live{position:relative;overflow:hidden}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--m);margin-right:8px;vertical-align:middle}
+.dot.on{background:var(--g);box-shadow:0 0 0 0 rgba(20,241,149,.6);animation:p 1.6s infinite}
+@keyframes p{70%{box-shadow:0 0 0 10px rgba(20,241,149,0)}100%{box-shadow:0 0 0 0 rgba(20,241,149,0)}}
+.big{font:700 clamp(40px,9vw,72px)/1 ui-monospace,Menlo,monospace;letter-spacing:-.03em;margin:10px 0 4px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px}
+.s{border:1px solid var(--line);border-radius:12px;padding:12px}
+.s b{display:block;font:600 22px/1.2 ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+.s span{font-size:12px;color:var(--m);text-transform:uppercase;letter-spacing:.06em}
+.meter{height:14px;border-radius:7px;background:var(--line);margin:14px 0 6px;overflow:hidden}
+.meter i{display:block;height:100%;min-width:3px;background:linear-gradient(90deg,var(--p),var(--g));transition:width .6s}
+.sig{font:12px ui-monospace,Menlo,monospace;color:var(--m);word-break:break-all}
+.sig a{color:var(--m)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:20px}
+th{font-size:12px;color:var(--m);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+td.n,th.n{text-align:right;font-family:ui-monospace,Menlo,monospace}
+tr.top td{color:var(--g)}
+.tw{overflow-x:auto}
+input[type=range]{width:100%;accent-color:var(--g)}
+.note{font-size:18px;color:var(--m)}
+a{color:var(--g)}
+.btn{display:inline-block;background:var(--fg);color:#0c1117;font:24px "VT323",monospace;padding:10px 18px;border:3px solid #000;box-shadow:4px 4px 0 #000;text-decoration:none}
+.btn.ghost{background:none;color:var(--fg);border:1px solid var(--line)}
+footer{margin-top:64px;font-size:13px;color:var(--m)}
+</style>
+</head>
+<body><main>
+<div style="display:flex;align-items:center;gap:12px"><img src="/logo.png" alt="" width="56" height="56" style="image-rendering:pixelated"><div class="k">Solana · GPU · live</div></div>
+<h1>Proof of <span>Parallel</span></h1>
+<p class="lead">Every Solana transaction is signed. Checking those signatures is one of the heaviest jobs a validator does, and Solana was built to do it on GPUs. Here one rented gaming GPU checks every signature on Solana mainnet, live.</p>
+
+<h2>Play: Leader Slot</h2>
+<div class="card" style="padding:0;overflow:hidden"><iframe src="/play/" title="Leader Slot" style="display:block;width:100%;height:min(78vh,720px);border:0" loading="lazy"></iframe></div>
+<p class="note">You are the Solana leader. Tap the real transactions, never the fakes, and see how far one human gets before the GPU takes over. <a href="/play/">Play full screen</a></p>
+
+<h2>Live: Solana mainnet on one GPU</h2>
+<div class="card live">
+  <div class="note"><i class="dot" id="ld"></i><span id="lstate">Connecting…</span></div>
+  <div class="big" id="lrate">–</div>
+  <div class="note">signatures per second on Solana mainnet right now, every one verified on the GPU</div>
+  <div class="meter"><i id="lbar" style="width:0"></i></div>
+  <div class="note"><b id="lpct">–</b> of one RTX 4090's measured capacity (6,759,163 signatures per second)</div>
+  <div class="grid">
+    <div class="s"><b id="ltot">–</b><span>signatures verified</span></div>
+    <div class="s"><b id="lblk">–</b><span>blocks checked</span></div>
+    <div class="s"><b id="lms">–</b><span>GPU time per block</span></div>
+    <div class="s"><b id="lroom">–</b><span>room to grow</span></div>
+  </div>
+  <p class="sig" id="lsig"></p>
+</div>
+<p class="note">How: every confirmed block is pulled from Solana mainnet, every ed25519 signature in it is checked on the GPU with Solana's own open-source verifier (anza-xyz/solana-perf-libs, unchanged). Network rate is the average signatures per block over the last minute times 2.5 blocks per second (400 ms slots).</p>
+
+<h2>PoP Score: signatures per second per $1 an hour</h2>
+<div class="tw"><table>
+<thead><tr><th>GPU</th><th class="n">Sigs / sec</th><th class="n">$/hr rented</th><th class="n">PoP Score</th><th class="n">vs CPU</th></tr></thead>
+<tbody id="board"></tbody>
+</table></div>
+<p class="note">Each GPU rented on vast.ai on 2026-11-05 and measured against the CPU in the same machine (ed25519-dalek on every thread, 1% tampered signatures, every result checked). PoP Score = signatures per second for each dollar per hour. The gaming cards win on value; the RTX 4090 is the fastest card outright.</p>
+
+<h2>The 1 million TPS calculator</h2>
+<div class="card">
+  <div class="note">Solana at <b id="ctps" style="color:var(--fg)">1,000,000</b> transactions per second</div>
+  <input type="range" id="cr" min="3" max="7" step="0.01" value="6">
+  <div class="grid">
+    <div class="s"><b id="csig">–</b><span>signatures / sec</span></div>
+    <div class="s"><b id="cgpu">–</b><span>RTX 4090s to verify them</span></div>
+    <div class="s"><b id="ccost">–</b><span>per hour, rented</span></div>
+  </div>
+  <p class="note" id="cnote"></p>
+</div>
+
+<h2>Get your GPU scored</h2>
+<div class="card">
+  <p style="margin-top:0">Validators, GPU hosts and data centers: we run the same test on your machines and give you a PoP Score, a "PoP verified" badge and a spot on the board.</p>
+  <a class="btn" href="https://x.com/Daglabster">Message @Daglabster</a>
+</div>
+
+<footer>Proof of Parallel · built by <a href="https://x.com/Daglabster">@Daglabster</a> · GPU verifier: anza-xyz/solana-perf-libs (Apache 2.0)</footer>
+</main>
+<script>
+const API="https://mdggkjocllyqxpthvtop.supabase.co/functions/v1/pop-live",MAX=6759163;
+const $=s=>document.getElementById(s),f=n=>Math.round(n).toLocaleString("en-US");
+let sigsPerTx=1.05;
+function pct(p){return p<0.01?p.toFixed(4)+"%":p<1?p.toFixed(3)+"%":p.toFixed(1)+"%"}
+function paint(d,live){
+  $("ld").className="dot"+(live?" on":"");
+  $("lstate").textContent=live?`Live · ${d.gpu||"RTX 4090"} · slot ${f(d.slot)}`:`Last live session (${new Date(d.at).toUTCString().slice(5,22)} UTC) · GPU is resting`;
+  $("lrate").textContent=f(d.sigs_per_s);
+  const p=100*d.sigs_per_s/MAX;$("lpct").textContent=pct(p);$("lbar").style.width=Math.max(.4,p)+"%";
+  $("ltot").textContent=f(d.totals.sigs);$("lblk").textContent=f(d.totals.blocks);
+  $("lms").textContent=d.block_gpu_ms!=null?d.block_gpu_ms.toFixed(1)+" ms":"–";
+  $("lroom").textContent=f(MAX/Math.max(1,d.sigs_per_s))+"×";
+  if(d.tx_per_s)sigsPerTx=Math.max(1,d.sigs_per_s/d.tx_per_s);
+  $("lsig").innerHTML=(d.recent||[]).slice(-3).map(s=>`<a target="_blank" rel="noopener" href="https://solscan.io/tx/${s}">${s.slice(0,22)}…</a>`).join(" · ")+(d.recent&&d.recent.length?" · verified signatures, check them on Solscan":"");
+  calc();
+}
+async function tick(){try{const j=await fetch(API).then(r=>r.json());const L=j.live,fresh=L&&Date.now()-Date.parse(L.at)<30000;if(fresh)paint(L,true);else if(j.best||L)paint(j.best||L,false);if(j.board&&!$("board").children.length)board(j.board)}catch(e){$("lstate").textContent="Reconnecting…"}}
+function board(b){b=b.map(x=>({...x,score:x.sigs/x.usd_hr})).sort((a,c)=>c.score-a.score);
+  $("board").innerHTML=b.map((x,i)=>`<tr class="${i===0?"top":""}"><td>${x.gpu}</td><td class="n">${f(x.sigs)}</td><td class="n">$${x.usd_hr.toFixed(2)}</td><td class="n">${(x.score/1e6).toFixed(1)}M</td><td class="n">${(x.sigs/x.cpu_sigs).toFixed(1)}×</td></tr>`).join("")}
+function calc(){const tps=Math.round(10**+$("cr").value),sig=tps*sigsPerTx,g=Math.max(1,Math.ceil(sig/MAX));
+  $("ctps").textContent=f(tps);$("csig").textContent=f(sig);$("cgpu").textContent=f(g);$("ccost").textContent="$"+(g*0.40).toFixed(2);
+  $("cnote").textContent=`Uses ${sigsPerTx.toFixed(2)} signatures per transaction (measured live on mainnet) and the RTX 4090's measured 6,759,163 per second at about $0.40 an hour. Signature checking only: bandwidth, scheduling and execution are separate jobs.`}
+$("cr").oninput=calc;calc();tick();setInterval(tick,2000);
+</script>
+</body>
+</html>
