@@ -4,12 +4,29 @@
 
 Every Solana transaction carries ed25519 signatures, and checking them is one of the heaviest jobs a validator does. Solana was designed with GPU signature verification from day one ([solana-perf-libs](https://github.com/anza-xyz/solana-perf-libs)). This repo makes that easy to measure on any NVIDIA GPU, next to a fair CPU baseline on the same machine, with one command.
 
+## Results
+
+First run, 2026-11-05, one rented machine ($0.46/hr), both sides measured on the same box:
+
+| machine | mode | signatures / second |
+|---|---|---|
+| NVIDIA RTX 4090 | GPU, batch 1,048,576 | **6,759,163** |
+| NVIDIA RTX 4090 | GPU, batch 262,144 | 6,240,454 |
+| NVIDIA RTX 4090 | GPU, batch 65,536 | 5,147,345 |
+| Threadripper 1920X, 24 threads | CPU, all cores | 211,152 |
+| Threadripper 1920X, 24 threads | CPU, all cores, batch of 64 | 196,795 |
+| Threadripper 1920X | CPU, 1 core | 14,243 |
+
+**One RTX 4090 verified 6.76M signatures per second: 32x every CPU thread on the same machine, 475x one core.** CPU results checked against 1% tampered signatures: all correct. Raw output: [`results/rtx4090-2026-11-05/results.json`](results/rtx4090-2026-11-05/results.json).
+
+Ran it on another GPU? Open an issue or pull request with your `results/results.json` and it goes on the leaderboard at proofofparallel.com.
+
 ## Run it
 
 On a Linux machine with an NVIDIA GPU and the CUDA toolkit (for example the `nvidia/cuda:12.6.0-devel-ubuntu22.04` image):
 
 ```bash
-git clone <this repo> && cd proof-of-parallel
+git clone https://github.com/OWNER/proof-of-parallel && cd proof-of-parallel
 ./scripts/run.sh
 ```
 

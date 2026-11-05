@@ -1,0 +1,26 @@
+{
+ "date": "2026-11-05T18:50:58.213097Z",
+ "gpu": "NVIDIA GeForce RTX 4090, 24564 MiB, 595.99.02",
+ "cpu_model": "AMD Ryzen Threadripper 1920X 12-Core Processor",
+ "cpu_threads": 24,
+ "cpu": {
+  "all_cores_batch64_sigs_per_s": 196795.0,
+  "all_cores_sigs_per_s": 211152.0,
+  "device": "cpu",
+  "invalid_share": 0.01,
+  "results_correct": true,
+  "signatures": 1048576,
+  "single_core_sigs_per_s": 14243.0,
+  "threads": 23
+ },
+ "gpu_runs": [
+  {"batch": 65536, "sigs_per_s": 5147345},
+  {"batch": 262144, "sigs_per_s": 6240454},
+  {"batch": 1048576, "sigs_per_s": 6759163}
+ ],
+ "gpu_best_sigs_per_s": 6759163,
+ "cpu_best_sigs_per_s": 211152.0,
+ "speedup_vs_all_cores": 32.01,
+ "speedup_vs_one_core": 474.6,
+ "solana_perf_libs_commit": "233c4457fd8d425da99cb3db46b2be8eb8b98997"
+}
