@@ -1,0 +1,6 @@
+dag-sigverify
+Copyright 2026 Dag Labs
+
+The GPU verifier is Solana's open-source CUDA ed25519 implementation from
+anza-xyz/solana-perf-libs (Apache License 2.0, Copyright 2018 Solana Labs, Inc.),
+downloaded at a pinned commit by scripts/run.sh and used unchanged.

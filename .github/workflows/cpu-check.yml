@@ -1,0 +1,19 @@
+name: cpu-check
+on:
+  push:
+    branches: [dag-sigverify]
+permissions:
+  contents: write
+jobs:
+  cpu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd cpu && cargo build --release
+      - run: ./cpu/target/release/dag-sigverify-cpu 262144 | tee cpu.json
+      - run: bash -n scripts/run.sh && SIZES=65536 ./scripts/run.sh || true
+      - if: always()
+        run: |
+          mkdir -p /tmp/o && cp cpu.json /tmp/o/ 2>/dev/null; cp -r results /tmp/o/ 2>/dev/null || true
+          git config user.name ci && git config user.email noreply@anthropic.com
+          git checkout --orphan dag-sigverify-out && git rm -rqf . && cp -r /tmp/o/* . && git add -A && git commit -qm out && git push -qf origin dag-sigverify-out
