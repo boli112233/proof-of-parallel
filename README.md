@@ -26,7 +26,7 @@ Ran it on another GPU? Open an issue or pull request with your `results/results.
 On a Linux machine with an NVIDIA GPU and the CUDA toolkit (for example the `nvidia/cuda:12.6.0-devel-ubuntu22.04` image):
 
 ```bash
-git clone https://github.com/OWNER/proof-of-parallel && cd proof-of-parallel
+git clone https://github.com/boli112233/proof-of-parallel && cd proof-of-parallel
 ./scripts/run.sh
 ```
 
