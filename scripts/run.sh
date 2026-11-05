@@ -17,7 +17,7 @@ echo "GPU: $GPU"; echo "CPU: $CPU ($CORES threads)"
 echo "== CPU baseline"
 command -v cargo >/dev/null || { curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal; . "$HOME/.cargo/env"; }
 (cd cpu && cargo build --release -q)
-CPU_JSON=$(./cpu/target/release/Proof of Parallel-cpu 1048576)
+CPU_JSON=$(./cpu/target/release/dag-sigverify-cpu 1048576)
 echo "$CPU_JSON"
 
 echo "== GPU (solana-perf-libs CUDA ed25519)"
