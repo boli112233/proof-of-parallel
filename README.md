@@ -1,6 +1,6 @@
-# dag-sigverify
+# Proof of Parallel
 
-How fast can one rented GPU check Solana signatures?
+**proofofparallel.com** · How fast can one rented GPU check Solana signatures?
 
 Every Solana transaction carries ed25519 signatures, and checking them is one of the heaviest jobs a validator does. Solana was designed with GPU signature verification from day one ([solana-perf-libs](https://github.com/anza-xyz/solana-perf-libs)). This repo makes that easy to measure on any NVIDIA GPU, next to a fair CPU baseline on the same machine, with one command.
 
@@ -9,7 +9,7 @@ Every Solana transaction carries ed25519 signatures, and checking them is one of
 On a Linux machine with an NVIDIA GPU and the CUDA toolkit (for example the `nvidia/cuda:12.6.0-devel-ubuntu22.04` image):
 
 ```bash
-git clone <this repo> && cd dag-sigverify
+git clone <this repo> && cd proof-of-parallel
 ./scripts/run.sh
 ```
 

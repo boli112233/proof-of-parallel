@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dag-sigverify: one command on any Linux box with an NVIDIA GPU (CUDA toolkit with nvcc, e.g. image nvidia/cuda:12.6.0-devel-ubuntu22.04).
+# Proof of Parallel: one command on any Linux box with an NVIDIA GPU (CUDA toolkit with nvcc, e.g. image nvidia/cuda:12.6.0-devel-ubuntu22.04).
 # Builds the CPU baseline (Rust, ed25519-dalek) and Solana's open-source CUDA ed25519 verifier (anza-xyz/solana-perf-libs),
 # runs both on the same machine, writes results/results.json and results/results.md, and prints a short summary.
 set -euo pipefail
@@ -17,7 +17,7 @@ echo "GPU: $GPU"; echo "CPU: $CPU ($CORES threads)"
 echo "== CPU baseline"
 command -v cargo >/dev/null || { curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal; . "$HOME/.cargo/env"; }
 (cd cpu && cargo build --release -q)
-CPU_JSON=$(./cpu/target/release/dag-sigverify-cpu 1048576)
+CPU_JSON=$(./cpu/target/release/Proof of Parallel-cpu 1048576)
 echo "$CPU_JSON"
 
 echo "== GPU (solana-perf-libs CUDA ed25519)"
@@ -54,7 +54,7 @@ r = {"date": datetime.datetime.utcnow().isoformat() + "Z", "gpu": gpu, "cpu_mode
      "gpu_best_sigs_per_s": best, "cpu_best_sigs_per_s": cpu_best, "speedup_vs_all_cores": round(best / cpu_best, 2) if best else None,
      "speedup_vs_one_core": round(best / c["single_core_sigs_per_s"], 1) if best else None, "solana_perf_libs_commit": commit}
 json.dump(r, open(f"{out}/results.json", "w"), indent=1)
-md = [f"# dag-sigverify results ({r['date'][:10]})", "", f"GPU: {gpu}", f"CPU: {cpu} ({cores} threads)", "",
+md = [f"# Proof of Parallel results ({r['date'][:10]})", "", f"GPU: {gpu}", f"CPU: {cpu} ({cores} threads)", "",
       "| mode | signatures / second |", "|---|---|",
       f"| CPU, 1 core | {c['single_core_sigs_per_s']:,.0f} |", f"| CPU, all cores | {c['all_cores_sigs_per_s']:,.0f} |",
       f"| CPU, all cores, batch of 64 | {c['all_cores_batch64_sigs_per_s']:,.0f} |"]
