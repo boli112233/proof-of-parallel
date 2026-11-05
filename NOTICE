@@ -1,5 +1,5 @@
 Proof of Parallel
-Copyright 2026 Dag Labs
+Copyright 2026 Daglabster (x.com/Daglabster)
 
 The GPU verifier is Solana's open-source CUDA ed25519 implementation from
 anza-xyz/solana-perf-libs (Apache License 2.0, Copyright 2018 Solana Labs, Inc.),
